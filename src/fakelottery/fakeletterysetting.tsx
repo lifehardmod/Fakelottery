@@ -302,7 +302,7 @@ const FakeLotterySetting = () => {
   };
 
   return (
-    <div className="w-full  flex flex-col items-center  bg-gray-50">
+    <div className="w-full  flex flex-col items-center min-h-screen justify-center  bg-gray-50">
       <div className="w-full max-w-md bg-white p-6">
         <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">
           복권 설정
