@@ -78,15 +78,32 @@ const FakeLotterySetting = () => {
   const startQrScanner = async () => {
     setIsScanning(true);
 
-    // 1. html5-qrcode 인스턴스 생성
-    const html5QrCode = new Html5Qrcode("qr-reader");
-    html5QrCodeRef.current = html5QrCode;
-
     try {
-      // 2. start 메서드 하나로 권한 요청과 카메라 실행을 모두 처리
+      // 1. 먼저 카메라 목록을 가져와서 권한을 명시적으로 요청
+      const cameras = await Html5Qrcode.getCameras();
+
+      if (!cameras || cameras.length === 0) {
+        alert("사용 가능한 카메라가 없습니다.");
+        setIsScanning(false);
+        return;
+      }
+
+      // 2. html5-qrcode 인스턴스 생성
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCodeRef.current = html5QrCode;
+
+      // 3. 후면 카메라 찾기 (없으면 첫 번째 카메라 사용)
+      let selectedCamera = cameras[0];
+      for (const camera of cameras) {
+        if (camera.label && camera.label.toLowerCase().includes("back")) {
+          selectedCamera = camera;
+          break;
+        }
+      }
+
+      // 4. 선택된 카메라로 스캔 시작
       await html5QrCode.start(
-        // facingMode: "environment" 옵션으로 후면 카메라를 우선 사용하도록 요청
-        { facingMode: "environment" },
+        selectedCamera.id,
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
@@ -103,7 +120,21 @@ const FakeLotterySetting = () => {
     } catch (err) {
       console.error("카메라 시작 오류:", err);
 
-      const errorMessage = "카메라에 접근할 수 없습니다.\n\n";
+      let errorMessage = "카메라에 접근할 수 없습니다.\n\n";
+
+      if (err instanceof Error) {
+        if (
+          err.message.includes("Permission") ||
+          err.message.includes("denied")
+        ) {
+          errorMessage +=
+            "카메라 권한이 거부되었습니다.\n브라우저 설정에서 카메라 권한을 허용해주세요.";
+        } else if (err.message.includes("NotFound")) {
+          errorMessage += "카메라를 찾을 수 없습니다.";
+        } else {
+          errorMessage += `오류: ${err.message}`;
+        }
+      }
 
       alert(errorMessage);
       setIsScanning(false);
