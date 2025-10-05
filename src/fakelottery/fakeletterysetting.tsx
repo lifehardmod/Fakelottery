@@ -76,33 +76,20 @@ const FakeLotterySetting = () => {
   };
 
   const startQrScanner = async () => {
-    // 이전 인스턴스가 있으면 먼저 정리
-    if (html5QrCodeRef.current) {
-      try {
-        await html5QrCodeRef.current.stop();
-        html5QrCodeRef.current.clear();
-      } catch {
-        // 이미 멈춰있거나 없으면 무시
-      }
-      html5QrCodeRef.current = null;
-    }
-
     setIsScanning(true);
 
-    // DOM 요소가 렌더링될 때까지 대기
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // 1. html5-qrcode 인스턴스 생성
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    html5QrCodeRef.current = html5QrCode;
 
     try {
-      const html5QrCode = new Html5Qrcode("qr-reader");
-      html5QrCodeRef.current = html5QrCode;
-
-      // 카메라로 직접 시작 (권한 요청 한 번만)
+      // 2. start 메서드 하나로 권한 요청과 카메라 실행을 모두 처리
       await html5QrCode.start(
-        { facingMode: { ideal: "environment" } }, // 후면 카메라 선호
+        // facingMode: "environment" 옵션으로 후면 카메라를 우선 사용하도록 요청
+        { facingMode: "environment" },
         {
-          fps: 15, // 프레임 레이트 증가
-          qrbox: { width: 300, height: 300 }, // QR 박스 크기 증가
-          disableFlip: false, // 좌우 반전 허용
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
         },
         (decodedText) => {
           // QR 코드 스캔 성공
@@ -115,36 +102,8 @@ const FakeLotterySetting = () => {
       );
     } catch (err) {
       console.error("카메라 시작 오류:", err);
-      console.error("에러 상세:", JSON.stringify(err));
 
-      let errorMessage = "카메라에 접근할 수 없습니다.\n\n";
-
-      if (err instanceof Error) {
-        if (
-          err.name === "NotAllowedError" ||
-          err.name === "PermissionDeniedError"
-        ) {
-          errorMessage = "카메라 권한이 거부되었습니다.\n\n";
-          errorMessage +=
-            "브라우저 주소창 옆의 자물쇠/설정 아이콘을 클릭하여\n";
-          errorMessage += "카메라 권한을 허용해주세요.";
-        } else if (
-          err.name === "NotFoundError" ||
-          err.name === "DevicesNotFoundError"
-        ) {
-          errorMessage = "카메라를 찾을 수 없습니다.\n\n";
-          errorMessage += "장치에 카메라가 연결되어 있는지 확인해주세요.";
-        } else if (
-          err.name === "NotReadableError" ||
-          err.name === "TrackStartError"
-        ) {
-          errorMessage = "카메라를 사용할 수 없습니다.\n\n";
-          errorMessage += "다른 앱에서 카메라를 사용 중이거나\n";
-          errorMessage += "카메라에 문제가 있을 수 있습니다.";
-        }
-      }
-
-      errorMessage += "\n\n대안: URL을 직접 붙여넣어도 됩니다.";
+      const errorMessage = "카메라에 접근할 수 없습니다.\n\n";
 
       alert(errorMessage);
       setIsScanning(false);
@@ -335,7 +294,7 @@ const FakeLotterySetting = () => {
         </div>
         {/* QR 스캐너 모달 */}
         {isScanning && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-5 w-full max-w-md">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-800">
@@ -353,20 +312,9 @@ const FakeLotterySetting = () => {
                 id="qr-reader"
                 className="w-full rounded-md overflow-hidden"
               ></div>
-              <div className="mt-4 space-y-2">
-                <p className="text-sm font-medium text-gray-700 text-center">
-                  복권의 QR 코드를 초록색 박스 안에 맞춰주세요
-                </p>
-                <div className="text-xs text-gray-600 bg-gray-50 rounded p-3">
-                  <p className="font-semibold mb-1">📌 인식이 잘 안 된다면:</p>
-                  <ul className="space-y-1 ml-2">
-                    <li>• 밝은 곳에서 시도하세요</li>
-                    <li>• QR 코드를 평평하게 펴세요</li>
-                    <li>• 카메라를 QR에 가까이/멀리 조절하세요</li>
-                    <li>• QR이 흔들리지 않게 고정하세요</li>
-                  </ul>
-                </div>
-              </div>
+              <p className="mt-4 text-sm text-gray-600 text-center">
+                복권의 QR 코드를 카메라에 비춰주세요
+              </p>
             </div>
           </div>
         )}
