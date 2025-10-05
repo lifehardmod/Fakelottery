@@ -101,12 +101,18 @@ const FakeLotterySetting = () => {
         }
       }
 
-      // 4. 선택된 카메라로 스캔 시작
+      // 4. 선택된 카메라로 스캔 시작 (고화질 설정)
       await html5QrCode.start(
         selectedCamera.id,
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0, // 정사각형 비율
+          videoConstraints: {
+            facingMode: "environment",
+            width: { ideal: 1920 }, // 풀HD 해상도
+            height: { ideal: 1080 },
+          },
         },
         (decodedText) => {
           // QR 코드 스캔 성공
