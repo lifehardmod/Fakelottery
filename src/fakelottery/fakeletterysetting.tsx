@@ -76,7 +76,21 @@ const FakeLotterySetting = () => {
   };
 
   const startQrScanner = async () => {
+    // 이전 인스턴스가 있으면 먼저 정리
+    if (html5QrCodeRef.current) {
+      try {
+        await html5QrCodeRef.current.stop();
+        html5QrCodeRef.current.clear();
+      } catch {
+        // 이미 멈춰있거나 없으면 무시
+      }
+      html5QrCodeRef.current = null;
+    }
+
     setIsScanning(true);
+
+    // DOM 요소가 렌더링될 때까지 대기
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     try {
       const html5QrCode = new Html5Qrcode("qr-reader");
@@ -101,6 +115,7 @@ const FakeLotterySetting = () => {
       );
     } catch (err) {
       console.error("카메라 시작 오류:", err);
+      console.error("에러 상세:", JSON.stringify(err));
 
       let errorMessage = "카메라에 접근할 수 없습니다.\n\n";
 
