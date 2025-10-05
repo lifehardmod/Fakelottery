@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "LocusImaginationGothic";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/locus_sangsang.woff")
+    format("woff");
+  font-weight: normal;
+  font-display: swap;
+}
+
+/* Pretendard 폰트 (9가지 두께) */
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-ExtraLight.woff2") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/pretendard/Pretendard-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@utility font-stretch-75 {
+  font-stretch: 75%;
+}
+
+@theme {
+  --font-sans: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+
+  --font-locus: "LocusImaginationGothic", cursive;
+}
+
+/* 로또 번호 스타일 */
+.clr {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 5px;
+  background-color: #aaa;
+}
+
+.clr1 {
+  background-color: #e4a716; /* 1~10 노란색 */
+}
+
+.clr2 {
+  background-color: #1993da; /* 11~20 파란색 */
+}
+
+.clr3 {
+  background-color: #e96353; /* 21~30 빨간색 */
+}
+
+.clr4 {
+  background-color: #8f8f8f; /* 31~40 회색 */
+}
+
+.clr5 {
+  background-color: #5ab545; /* 41~45 초록색 */
+}
