@@ -4,7 +4,7 @@ import FakeLotterySetting from "./fakelottery/fakeletterysetting";
 
 function App() {
   return (
-    <div className="w-full h-full">
+    <div>
       <Routes>
         <Route path="/" element={<FakeLotterySetting />} />
         <Route path="/FakeLottery" element={<FakeLottery />} />

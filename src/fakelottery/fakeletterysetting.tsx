@@ -77,28 +77,81 @@ const FakeLotterySetting = () => {
 
   const startQrScanner = async () => {
     setIsScanning(true);
+
     try {
+      // 먼저 카메라 권한 확인
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+      // 권한 획득 후 스트림 정리
+      stream.getTracks().forEach((track) => track.stop());
+
       const html5QrCode = new Html5Qrcode("qr-reader");
       html5QrCodeRef.current = html5QrCode;
 
-      await html5QrCode.start(
-        { facingMode: "environment" }, // 후면 카메라 사용
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText) => {
-          // QR 코드 스캔 성공
-          handleQrInputChange(decodedText);
-          stopQrScanner();
-        },
-        () => {
-          // 스캔 실패는 무시 (계속 시도)
-        }
-      );
+      // 카메라 목록 가져오기
+      const devices = await Html5Qrcode.getCameras();
+
+      if (devices && devices.length > 0) {
+        // 후면 카메라 찾기 (없으면 첫 번째 카메라 사용)
+        const backCamera =
+          devices.find(
+            (device) =>
+              device.label.toLowerCase().includes("back") ||
+              device.label.toLowerCase().includes("rear")
+          ) || devices[devices.length - 1]; // 일반적으로 마지막이 후면 카메라
+
+        await html5QrCode.start(
+          backCamera.id,
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+          },
+          (decodedText) => {
+            // QR 코드 스캔 성공
+            handleQrInputChange(decodedText);
+            stopQrScanner();
+          },
+          () => {
+            // 스캔 실패는 무시 (계속 시도)
+          }
+        );
+      } else {
+        throw new Error("카메라를 찾을 수 없습니다.");
+      }
     } catch (err) {
       console.error("카메라 시작 오류:", err);
-      alert("카메라에 접근할 수 없습니다. 브라우저 설정을 확인해주세요.");
+
+      let errorMessage = "카메라에 접근할 수 없습니다.\n\n";
+
+      if (err instanceof Error) {
+        if (
+          err.name === "NotAllowedError" ||
+          err.name === "PermissionDeniedError"
+        ) {
+          errorMessage = "카메라 권한이 거부되었습니다.\n\n";
+          errorMessage +=
+            "브라우저 주소창 옆의 자물쇠/설정 아이콘을 클릭하여\n";
+          errorMessage += "카메라 권한을 허용해주세요.";
+        } else if (
+          err.name === "NotFoundError" ||
+          err.name === "DevicesNotFoundError"
+        ) {
+          errorMessage = "카메라를 찾을 수 없습니다.\n\n";
+          errorMessage += "장치에 카메라가 연결되어 있는지 확인해주세요.";
+        } else if (
+          err.name === "NotReadableError" ||
+          err.name === "TrackStartError"
+        ) {
+          errorMessage = "카메라를 사용할 수 없습니다.\n\n";
+          errorMessage += "다른 앱에서 카메라를 사용 중이거나\n";
+          errorMessage += "카메라에 문제가 있을 수 있습니다.";
+        }
+      }
+
+      errorMessage += "\n\n대안: URL을 직접 붙여넣어도 됩니다.";
+
+      alert(errorMessage);
       setIsScanning(false);
     }
   };
@@ -249,8 +302,8 @@ const FakeLotterySetting = () => {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="w-full  flex flex-col items-center  bg-gray-50">
+      <div className="w-full max-w-md bg-white p-6">
         <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">
           복권 설정
         </h1>{" "}
@@ -347,8 +400,8 @@ const FakeLotterySetting = () => {
             <button
               className={`flex-1 py-3 px-4 rounded-md font-semibold text-base transition ${
                 selectedPrize === 1
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white border border-gray-400 text-gray-700 hover:border-blue-500"
               }`}
               onClick={() => setSelectedPrize(1)}
             >
@@ -357,8 +410,8 @@ const FakeLotterySetting = () => {
             <button
               className={`flex-1 py-3 px-4 rounded-md font-semibold text-base transition ${
                 selectedPrize === 2
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white border border-gray-400 text-gray-700 hover:border-blue-500"
               }`}
               onClick={() => setSelectedPrize(2)}
             >
@@ -367,8 +420,8 @@ const FakeLotterySetting = () => {
             <button
               className={`flex-1 py-3 px-4 rounded-md font-semibold text-base transition ${
                 selectedPrize === 3
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-500"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white border border-gray-400 text-gray-700 hover:border-blue-500"
               }`}
               onClick={() => setSelectedPrize(3)}
             >
