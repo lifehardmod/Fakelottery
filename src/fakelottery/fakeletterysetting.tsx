@@ -84,18 +84,11 @@ const FakeLotterySetting = () => {
 
       // 카메라로 직접 시작 (권한 요청 한 번만)
       await html5QrCode.start(
-        { facingMode: "environment" }, // 후면 카메라 선호
-
+        { facingMode: { ideal: "environment" } }, // 후면 카메라 선호
         {
           fps: 15, // 프레임 레이트 증가
           qrbox: { width: 300, height: 300 }, // QR 박스 크기 증가
-          aspectRatio: 1.0, // 정사각형 비율
           disableFlip: false, // 좌우 반전 허용
-          videoConstraints: {
-            width: { min: 640, ideal: 1280, max: 1920 }, // 고해상도 요청
-            height: { min: 480, ideal: 720, max: 1080 },
-            facingMode: "environment",
-          },
         },
         (decodedText) => {
           // QR 코드 스캔 성공
