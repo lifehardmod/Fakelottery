@@ -79,46 +79,33 @@ const FakeLotterySetting = () => {
     setIsScanning(true);
 
     try {
-      // 먼저 카메라 권한 확인
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-      // 권한 획득 후 스트림 정리
-      stream.getTracks().forEach((track) => track.stop());
-
       const html5QrCode = new Html5Qrcode("qr-reader");
       html5QrCodeRef.current = html5QrCode;
 
-      // 카메라 목록 가져오기
-      const devices = await Html5Qrcode.getCameras();
+      // 카메라로 직접 시작 (권한 요청 한 번만)
+      await html5QrCode.start(
+        { facingMode: "environment" }, // 후면 카메라 선호
 
-      if (devices && devices.length > 0) {
-        // 후면 카메라 찾기 (없으면 첫 번째 카메라 사용)
-        const backCamera =
-          devices.find(
-            (device) =>
-              device.label.toLowerCase().includes("back") ||
-              device.label.toLowerCase().includes("rear")
-          ) || devices[devices.length - 1]; // 일반적으로 마지막이 후면 카메라
-
-        await html5QrCode.start(
-          backCamera.id,
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
+        {
+          fps: 15, // 프레임 레이트 증가
+          qrbox: { width: 300, height: 300 }, // QR 박스 크기 증가
+          aspectRatio: 1.0, // 정사각형 비율
+          disableFlip: false, // 좌우 반전 허용
+          videoConstraints: {
+            width: { min: 640, ideal: 1280, max: 1920 }, // 고해상도 요청
+            height: { min: 480, ideal: 720, max: 1080 },
+            facingMode: "environment",
           },
-          (decodedText) => {
-            // QR 코드 스캔 성공
-            handleQrInputChange(decodedText);
-            stopQrScanner();
-          },
-          () => {
-            // 스캔 실패는 무시 (계속 시도)
-          }
-        );
-      } else {
-        throw new Error("카메라를 찾을 수 없습니다.");
-      }
+        },
+        (decodedText) => {
+          // QR 코드 스캔 성공
+          handleQrInputChange(decodedText);
+          stopQrScanner();
+        },
+        () => {
+          // 스캔 실패는 무시 (계속 시도)
+        }
+      );
     } catch (err) {
       console.error("카메라 시작 오류:", err);
 
@@ -340,7 +327,7 @@ const FakeLotterySetting = () => {
         </div>
         {/* QR 스캐너 모달 */}
         {isScanning && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-5 w-full max-w-md">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-800">
@@ -358,9 +345,20 @@ const FakeLotterySetting = () => {
                 id="qr-reader"
                 className="w-full rounded-md overflow-hidden"
               ></div>
-              <p className="mt-4 text-sm text-gray-600 text-center">
-                복권의 QR 코드를 카메라에 비춰주세요
-              </p>
+              <div className="mt-4 space-y-2">
+                <p className="text-sm font-medium text-gray-700 text-center">
+                  복권의 QR 코드를 초록색 박스 안에 맞춰주세요
+                </p>
+                <div className="text-xs text-gray-600 bg-gray-50 rounded p-3">
+                  <p className="font-semibold mb-1">📌 인식이 잘 안 된다면:</p>
+                  <ul className="space-y-1 ml-2">
+                    <li>• 밝은 곳에서 시도하세요</li>
+                    <li>• QR 코드를 평평하게 펴세요</li>
+                    <li>• 카메라를 QR에 가까이/멀리 조절하세요</li>
+                    <li>• QR이 흔들리지 않게 고정하세요</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         )}
