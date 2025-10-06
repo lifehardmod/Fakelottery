@@ -296,10 +296,12 @@ const FakeLotterySetting = () => {
     <div className="w-full  flex flex-col items-center min-h-screen justify-center  bg-gray-50">
       <div className="w-full max-w-md bg-white p-6">
         <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">
-          복권 설정
-        </h1>{" "}
+          당첨 복권 생성기
+        </h1>
         <h2 className="text-xs text-center mb-5 text-gray-800">
-          가지고 계신 복권을 당첨된 것 처럼 바꿔드립니다.
+          가지고 계신 복권의 qr을 스캔하거나, 링크를 입력하면
+          <br />
+          당첨된 것 처럼 바꿔드립니다.
         </h2>
         {/* 단계 1: 복권 정보 입력 */}
         <div className="mb-6">
